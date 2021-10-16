@@ -22,6 +22,7 @@ message VideoInfo {
     string encoding = 2;
     string mimetype = 3;
     string size = 4;
+    string creator = 5;
 }
 
 service ChatService {

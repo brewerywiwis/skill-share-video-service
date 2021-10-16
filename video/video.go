@@ -11,6 +11,7 @@ import (
 	"skillshare/video/repository"
 	"skillshare/video/storage"
 
+	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/net/context"
 )
@@ -38,6 +39,13 @@ func (server *Server) UploadVideo(stream VideoService_UploadVideoServer) error {
 	originalName := req.GetInfo().GetOriginalname()
 	mimetype := req.GetInfo().GetMimetype()
 	encoding := req.GetInfo().GetEncoding()
+	creator := req.GetInfo().GetCreator()
+	_, err = uuid.Parse(creator)
+	if err != nil {
+		log.Printf("Creator cannot parse to UUID: %s \n", err)
+		stream.SendAndClose(res)
+		return err
+	}
 	// size := req.GetInfo().GetSize()
 	// log.Printf("RECEIVED:\n name: %s\nmimetype: %s\n encoding: %s\n size: %s\n", originalName, mimetype, encoding, size)
 
@@ -93,6 +101,7 @@ func (server *Server) UploadVideo(stream VideoService_UploadVideoServer) error {
 		Encoding:  encoding,
 		Mimetype:  mimetype,
 		Size:      videoSize,
+		Creator:   creator,
 	}
 	_, err = repository.CreateRawVideo(rawVideo)
 	if err != nil {

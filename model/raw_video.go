@@ -11,4 +11,5 @@ type RawVideoModel struct {
 	Encoding  string             `bson:"encoding" json:"encoding"`
 	Mimetype  string             `bson:"mime_type" json:"mime_type"`
 	Size      int                `bson:"size" json:"size"`
+	Creator   string             `bson:"creator" json:"creator"`
 }
