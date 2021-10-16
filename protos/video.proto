@@ -1,0 +1,33 @@
+syntax = "proto3";
+package video;
+option go_package = "skillshare/video/protos/video";
+
+message Message {
+    string body = 1;
+}
+message VideoUploadRequest{
+    oneof data{
+        VideoInfo info = 1;
+        bytes buffer = 2;
+    }
+}
+
+message VideoUploadResponse{
+    string id = 1;
+    string size = 2;
+}
+
+message VideoInfo {
+    string originalname = 1;
+    string encoding = 2;
+    string mimetype = 3;
+    string size = 4;
+}
+
+service ChatService {
+    rpc SayHello(Message) returns (Message) {}
+}
+
+service VideoService {
+    rpc UploadVideo(stream VideoUploadRequest) returns (VideoUploadResponse) {};
+}
