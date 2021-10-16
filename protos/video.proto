@@ -14,7 +14,7 @@ message VideoUploadRequest{
 
 message VideoUploadResponse{
     string id = 1;
-    string size = 2;
+    uint32 size = 2;
 }
 
 message VideoInfo {

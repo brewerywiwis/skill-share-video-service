@@ -1,0 +1,9 @@
+aws:
+  s3_region: ap-southeast-1
+  s3_bucket: skillshare-storage
+  s3_access_key_id: AKIATVRLH3WZ6AAJRQ63
+  s3_secret_key: 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
+  s3_raw_video_key: 'raw_video'
+mongo:
+  url:
+  db_name: hello
