@@ -5,5 +5,5 @@ aws:
   s3_secret_key: ze4IfRS+QzOeUc4j3B/Gos2J4CfamcqFqLQV6M7k
   s3_raw_video_key: 'raw_video'
 mongo:
-  url:
-  db_name: hello
+  url: mongodb+srv://skillsharedeveloper:skillshare%402021@cluster0.d2mzn.mongodb.net/test?authSource=admin&replicaSet=atlas-6jzi1d-shard-0&readPreference=primary&appname=MongoDB%20Compass&ssl=true
+  db_name: skillshare_db

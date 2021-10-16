@@ -4,6 +4,7 @@ import (
 	"log"
 	"net"
 	"skillshare/video/config"
+	"skillshare/video/database"
 	"skillshare/video/video"
 
 	"google.golang.org/grpc"
@@ -11,6 +12,7 @@ import (
 
 func main() {
 	config.Init()
+	database.Init()
 	serverPort := ":8100"
 	lis, err := net.Listen("tcp", serverPort)
 	if err != nil {
