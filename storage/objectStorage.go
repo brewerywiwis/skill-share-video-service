@@ -8,9 +8,9 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
-
-	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func createSession() (*session.Session, error) {
@@ -20,7 +20,7 @@ func createSession() (*session.Session, error) {
 		Region:      aws.String(s3config.S3_REGION)},
 	)
 }
-func UploadFile(originalName string, mimetype string, encoding string, videoSize int, videoData bytes.Buffer) (string, *s3manager.UploadOutput, error) {
+func UploadFile(originalName string, mimetype string, encoding string, videoSize int, videoData bytes.Buffer) (primitive.ObjectID, *s3manager.UploadOutput, error) {
 	log.Printf("Uploading file")
 	session, err := createSession()
 	if err != nil {
@@ -28,17 +28,39 @@ func UploadFile(originalName string, mimetype string, encoding string, videoSize
 	}
 	uploader := s3manager.NewUploader(session)
 	config := config.GetS3Config()
-	videoId, err := uuid.NewRandom()
-	if err != nil {
-		log.Printf("cannot random video id in upload video")
-		return "", nil, err
-	}
+	videoId := primitive.NewObjectID()
 	result, err := uploader.Upload(&s3manager.UploadInput{
 		Bucket:          aws.String(config.S3_BUCKET),
-		Key:             aws.String(config.S3_RAW_VIDEO_KEY + "/" + videoId.String()),
+		Key:             aws.String(config.S3_RAW_VIDEO_KEY + "/" + videoId.Hex()),
 		Body:            bytes.NewReader(videoData.Bytes()),
 		ContentType:     aws.String(mimetype),
 		ContentEncoding: aws.String(encoding),
 	})
-	return videoId.String(), result, nil
+	return videoId, result, nil
+}
+
+func DeleteFile(path string) error {
+	session, err := createSession()
+	if err != nil {
+		log.Println("Cannot create session")
+		return err
+	}
+	svc := s3.New(session)
+	config := config.GetS3Config()
+	_, err = svc.DeleteObject(&s3.DeleteObjectInput{
+		Bucket: aws.String(config.S3_BUCKET),
+		Key:    aws.String(path),
+	})
+	if err != nil {
+		log.Println("Cannot create session")
+		return err
+	}
+	err = svc.WaitUntilObjectNotExists(&s3.HeadObjectInput{
+		Bucket: aws.String(config.S3_BUCKET),
+		Key:    aws.String(path),
+	})
+	if err != nil {
+		return err
+	}
+	return nil
 }

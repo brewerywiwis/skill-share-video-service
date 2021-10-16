@@ -50,3 +50,5 @@ require (
 	golang.org/x/net v0.0.0-20210614182718-04defd469f4e
 	google.golang.org/protobuf v1.27.1
 )
+
+require github.com/streadway/amqp v1.0.0 // indirect

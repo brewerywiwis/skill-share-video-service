@@ -4,6 +4,15 @@ aws:
   s3_access_key_id: AKIATVRLH3WZ6AAJRQ63
   s3_secret_key: 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
   s3_raw_video_key: 'raw_video'
+
 mongo:
   url: mongodb+srv://skillsharedeveloper:skillshare%402021@cluster0.d2mzn.mongodb.net/test?authSource=admin&replicaSet=atlas-6jzi1d-shard-0&readPreference=primary&appname=MongoDB%20Compass&ssl=true
   db_name: skillshare_db
+
+rabbit_mq:
+  username: guest
+  password: guest
+  host: 34.126.107.193
+  port: 5672
+  sensorGatewayExchange: 'sensor_gateway'
+  routingSuffix: '_routing'

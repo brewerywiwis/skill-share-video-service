@@ -32,7 +32,16 @@ type S3Config struct {
 	S3_RAW_VIDEO_KEY string
 }
 
-// var rabbitMQ *RabbitConfig
+type RabbitConfig struct {
+	USERNAME              string
+	PASSWORD              string
+	HOST                  string
+	PORT                  string
+	SensorGatewayExchange string
+	RoutingKeySuffix      string
+}
+
+var rabbitMQ *RabbitConfig
 var databaseConfig *DatabaseConfig
 var s3Config *S3Config
 
@@ -87,4 +96,19 @@ func GetS3Config() *S3Config {
 		}
 	}
 	return s3Config
+}
+
+func GetRabbitMQConfig() *RabbitConfig {
+	if rabbitMQ == nil {
+		rabbitMQ = &RabbitConfig{
+			USERNAME:              viper.GetString("rabbit_mq.username"),
+			PASSWORD:              viper.GetString("rabbit_mq.password"),
+			HOST:                  viper.GetString("rabbit_mq.host"),
+			PORT:                  viper.GetString("rabbit_mq.port"),
+			SensorGatewayExchange: viper.GetString("rabbit_mq.sensorGatewayExchange"),
+			RoutingKeySuffix:      viper.GetString("rabbit_mq.routingSuffix"),
+		}
+
+	}
+	return rabbitMQ
 }

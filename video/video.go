@@ -2,14 +2,24 @@ package video
 
 import (
 	"bytes"
+	"encoding/json"
 	"io"
 	"log"
+	"skillshare/video/config"
+	"skillshare/video/model"
+	"skillshare/video/mq"
+	"skillshare/video/repository"
 	"skillshare/video/storage"
 
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/net/context"
 )
 
 type Server struct {
+}
+
+type ConverterMessage struct {
+	VideoLink string `json:"video_link"`
 }
 
 func (s *Server) SayHello(ctx context.Context, in *Message) (*Message, error) {
@@ -18,9 +28,11 @@ func (s *Server) SayHello(ctx context.Context, in *Message) (*Message, error) {
 }
 
 func (server *Server) UploadVideo(stream VideoService_UploadVideoServer) error {
+	res := &VideoUploadResponse{}
 	req, err := stream.Recv()
 	if err != nil {
 		log.Printf("Upload video rpc error: %s \n", err)
+		stream.SendAndClose(res)
 		return err
 	}
 	originalName := req.GetInfo().GetOriginalname()
@@ -41,6 +53,7 @@ func (server *Server) UploadVideo(stream VideoService_UploadVideoServer) error {
 		}
 		if err != nil {
 			log.Printf("cannot receive chunk data: %v", err)
+			stream.SendAndClose(res)
 			return err
 		}
 
@@ -53,6 +66,7 @@ func (server *Server) UploadVideo(stream VideoService_UploadVideoServer) error {
 
 		if err != nil {
 			log.Printf("cannot write chunk data: %v", err)
+			stream.SendAndClose(res)
 			return err
 		}
 	}
@@ -61,22 +75,62 @@ func (server *Server) UploadVideo(stream VideoService_UploadVideoServer) error {
 
 	if err != nil {
 		log.Printf("cannot upload data: %v", err)
+		stream.SendAndClose(res)
 		return err
 	}
 
-	res := &VideoUploadResponse{
-		Id:   videoId,
-		Size: uint32(videoSize),
+	// log.Printf("saved image with id: %s, size: %d", videoId, videoSize)
+	// log.Printf("Location: %s", result.Location)
+	if err != nil {
+		log.Printf("cannot parse uuid: %v", err)
+		stream.SendAndClose(res)
+		return err
+	}
+	rawVideo := &model.RawVideoModel{
+		ID:        primitive.NewObjectID(),
+		VideoID:   videoId,
+		VideoLink: result.Location,
+		Encoding:  encoding,
+		Mimetype:  mimetype,
+		Size:      videoSize,
+	}
+	_, err = repository.CreateRawVideo(rawVideo)
+	if err != nil {
+		log.Printf("cannot insert result: %v", err)
+		storage.DeleteFile(result.Location)
+		stream.SendAndClose(res)
+		return err
 	}
 
-	err = stream.SendAndClose(res)
+	res = &VideoUploadResponse{
+		Id:   videoId.Hex(),
+		Size: uint32(videoSize),
+	}
+	config := config.GetRabbitMQConfig()
+	currentQueue := "converter"
+	routingKey := currentQueue + config.RoutingKeySuffix
+	channel := mq.CreateChannel(currentQueue, routingKey)
+	myJsonString, err := json.Marshal(&ConverterMessage{result.Location})
+	if err != nil {
+		log.Printf("cannot marshal message: %v", err)
+		stream.SendAndClose(res)
+		return err
+	}
+	err = mq.Publish(myJsonString, channel)
+	if err != nil {
+		log.Printf("cannot publish message: %v", err)
+		stream.SendAndClose(res)
+		return err
+	}
+	log.Println("[Converter] Send message to converter queue")
 
+	channel.Close()
+	log.Println("Send response data")
+	err = stream.SendAndClose(res)
 	if err != nil {
 		log.Printf("cannot send response: %v", err)
 		return err
 	}
 
-	log.Printf("saved image with id: %s, size: %d", videoId, videoSize)
-	log.Printf("Location: %s", result.Location)
 	return nil
 }
