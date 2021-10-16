@@ -40,6 +40,8 @@ func (server *Server) UploadVideo(stream VideoService_UploadVideoServer) error {
 	mimetype := req.GetInfo().GetMimetype()
 	encoding := req.GetInfo().GetEncoding()
 	creator := req.GetInfo().GetCreator()
+	title := req.GetInfo().GetTitle()
+	description := req.GetInfo().GetDescription()
 	_, err = uuid.Parse(creator)
 	if err != nil {
 		log.Printf("Creator cannot parse to UUID: %s \n", err)
@@ -95,13 +97,15 @@ func (server *Server) UploadVideo(stream VideoService_UploadVideoServer) error {
 		return err
 	}
 	rawVideo := &model.RawVideoModel{
-		ID:        primitive.NewObjectID(),
-		VideoID:   videoId,
-		VideoLink: result.Location,
-		Encoding:  encoding,
-		Mimetype:  mimetype,
-		Size:      videoSize,
-		Creator:   creator,
+		ID:          primitive.NewObjectID(),
+		VideoID:     videoId,
+		VideoLink:   result.Location,
+		Encoding:    encoding,
+		Mimetype:    mimetype,
+		Size:        videoSize,
+		Creator:     creator,
+		Title:       title,
+		Description: description,
 	}
 	_, err = repository.CreateRawVideo(rawVideo)
 	if err != nil {

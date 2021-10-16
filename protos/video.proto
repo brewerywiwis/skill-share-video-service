@@ -23,7 +23,10 @@ message VideoInfo {
     string mimetype = 3;
     string size = 4;
     string creator = 5;
+    string title = 6;
+    string description = 7;
 }
+
 
 service ChatService {
     rpc SayHello(Message) returns (Message) {}
