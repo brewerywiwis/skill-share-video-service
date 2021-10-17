@@ -20,9 +20,9 @@ func main() {
 	mq.CreateConnection()
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8100"
+		port = "50051"
 	}
-	serverPort := fmt.Sprintf(":%s", port)
+	serverPort := fmt.Sprintf("localhost:%s", port)
 	lis, err := net.Listen("tcp", serverPort)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
