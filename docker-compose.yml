@@ -1,0 +1,9 @@
+version: '3.7'
+
+services:
+  video_service:
+    image: .
+    container_name: 'video_service'
+    ports:
+      - '8100:8100'
+    restart: always
