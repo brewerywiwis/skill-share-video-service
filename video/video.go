@@ -10,6 +10,7 @@ import (
 	"skillshare/video/mq"
 	"skillshare/video/repository"
 	"skillshare/video/storage"
+	"time"
 
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -106,6 +107,8 @@ func (server *Server) UploadVideo(stream VideoService_UploadVideoServer) error {
 		Creator:     creator,
 		Title:       title,
 		Description: description,
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
 	}
 	_, err = repository.CreateRawVideo(rawVideo)
 	if err != nil {
