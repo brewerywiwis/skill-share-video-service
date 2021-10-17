@@ -11,8 +11,8 @@ WORKDIR /app
 COPY . /app
 
 RUN go mod download
+# RUN mkdir -p /app/tmp
+# RUN go run main.go
+# RUN go build -o /app_exe
 
-RUN go build -o /app_exe
-
-RUN mkdir -p /app/tmp
-CMD /app_exe
+# CMD /app_exe
