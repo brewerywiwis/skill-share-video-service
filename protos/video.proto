@@ -27,11 +27,36 @@ message VideoInfo {
     string description = 7;
 }
 
+message VideoUploaded {
+    string videoId = 1;
+    string videoLink = 2;
+    string creator = 3;
+    string title = 4;
+    string description = 5;
+    string createdAt = 6;
+    string updatedAt = 7;
+}
 
+message Empty{}
+
+message VideoUploadedResponse {
+    VideoUploaded videoUploaded = 1;
+}
+
+message NumberRequest {
+    uint32 number = 1;
+}
+
+message VideoCriteriaRequest {
+    string id = 1;
+}
 service ChatService {
     rpc SayHello(Message) returns (Message) {}
 }
 
 service VideoService {
     rpc UploadVideo(stream VideoUploadRequest) returns (VideoUploadResponse) {};
+    rpc GetAllVideo(Empty) returns (stream VideoUploadedResponse) {};
+    rpc GetRandomVideo(NumberRequest) returns (stream VideoUploadedResponse) {};
+    rpc GetVideoByCriteria(VideoCriteriaRequest) returns (stream VideoUploadedResponse) {};
 }

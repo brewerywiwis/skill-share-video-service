@@ -22,7 +22,7 @@ func main() {
 	if port == "" {
 		port = "50051"
 	}
-	serverPort := fmt.Sprintf("localhost:%s", port)
+	serverPort := fmt.Sprintf(":%s", port)
 	lis, err := net.Listen("tcp", serverPort)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)

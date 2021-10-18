@@ -8,6 +8,7 @@ import (
 	"skillshare/video/model"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -76,4 +77,42 @@ func UpdateRawVideo() {
 }
 func DeleteRawVideo() {
 
+}
+
+func GetRandomVideo(n int) (*[]model.RawVideoModel, error) {
+	databaseConfig := config.GetDatabaseConfig()
+	collection := database.GetDatabaseClient().Database(databaseConfig.DB_NAME).Collection("raw_videos")
+
+	pipeline := mongo.Pipeline{
+		bson.D{{"$sample", bson.D{{"size", n}}}},
+	}
+	cur, err := collection.Aggregate(context.TODO(), pipeline)
+
+	var results []model.RawVideoModel
+	err = cur.All(context.TODO(), &results)
+	if err != nil {
+		log.Println("Mongo error", err)
+		return nil, err
+	}
+	return &results, nil
+}
+
+func GetVideoById(videoId string) (*[]model.RawVideoModel, error) {
+	databaseConfig := config.GetDatabaseConfig()
+	collection := database.GetDatabaseClient().Database(databaseConfig.DB_NAME).Collection("raw_videos")
+
+	videoIdHex, err := primitive.ObjectIDFromHex(videoId)
+	if err != nil {
+		log.Println("video id error", err)
+	}
+	filter := bson.D{{"video_id", videoIdHex}}
+	cur, err := collection.Find(context.TODO(), filter)
+
+	var results []model.RawVideoModel
+	err = cur.All(context.TODO(), &results)
+	if err != nil {
+		log.Println("Mongo error", err)
+		return nil, err
+	}
+	return &results, nil
 }

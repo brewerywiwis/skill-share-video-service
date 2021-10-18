@@ -150,3 +150,69 @@ func (server *Server) UploadVideo(stream VideoService_UploadVideoServer) error {
 
 	return nil
 }
+
+func (server *Server) GetAllVideo(req *Empty, stream VideoService_GetAllVideoServer) error {
+	results, err := repository.GetAllRawVideo()
+	if err != nil {
+		log.Println("Cannot get all video data from DB")
+	}
+	for _, v := range *results {
+		res := &VideoUploadedResponse{
+			VideoUploaded: &VideoUploaded{
+				VideoId:     v.VideoID.Hex(),
+				VideoLink:   v.VideoLink,
+				Title:       v.Title,
+				Description: v.Description,
+				Creator:     v.Creator,
+				CreatedAt:   v.CreatedAt.String(),
+				UpdatedAt:   v.UpdatedAt.String(),
+			},
+		}
+		stream.Send(res)
+	}
+	return nil
+}
+
+func (server *Server) GetRandomVideo(req *NumberRequest, stream VideoService_GetRandomVideoServer) error {
+	results, err := repository.GetRandomVideo(int(req.Number))
+	if err != nil {
+		log.Println("Cannot get random video data from DB")
+	}
+	for _, v := range *results {
+		res := &VideoUploadedResponse{
+			VideoUploaded: &VideoUploaded{
+				VideoId:     v.VideoID.Hex(),
+				VideoLink:   v.VideoLink,
+				Title:       v.Title,
+				Description: v.Description,
+				Creator:     v.Creator,
+				CreatedAt:   v.CreatedAt.String(),
+				UpdatedAt:   v.UpdatedAt.String(),
+			},
+		}
+		stream.Send(res)
+	}
+	return nil
+}
+
+func (server *Server) GetVideoByCriteria(req *VideoCriteriaRequest, stream VideoService_GetVideoByCriteriaServer) error {
+	results, err := repository.GetVideoById(req.GetId())
+	if err != nil {
+		log.Println("Cannot get video data from DB")
+	}
+	for _, v := range *results {
+		res := &VideoUploadedResponse{
+			VideoUploaded: &VideoUploaded{
+				VideoId:     v.VideoID.Hex(),
+				VideoLink:   v.VideoLink,
+				Title:       v.Title,
+				Description: v.Description,
+				Creator:     v.Creator,
+				CreatedAt:   v.CreatedAt.String(),
+				UpdatedAt:   v.UpdatedAt.String(),
+			},
+		}
+		stream.Send(res)
+	}
+	return nil
+}
