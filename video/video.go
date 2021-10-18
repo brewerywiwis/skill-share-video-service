@@ -164,8 +164,8 @@ func (server *Server) GetAllVideo(req *Empty, stream VideoService_GetAllVideoSer
 				Title:       v.Title,
 				Description: v.Description,
 				Creator:     v.Creator,
-				CreatedAt:   v.CreatedAt.String(),
-				UpdatedAt:   v.UpdatedAt.String(),
+				CreatedAt:   v.CreatedAt.Format(time.RFC3339),
+				UpdatedAt:   v.UpdatedAt.Format(time.RFC3339),
 			},
 		}
 		stream.Send(res)
@@ -186,8 +186,8 @@ func (server *Server) GetRandomVideo(req *NumberRequest, stream VideoService_Get
 				Title:       v.Title,
 				Description: v.Description,
 				Creator:     v.Creator,
-				CreatedAt:   v.CreatedAt.String(),
-				UpdatedAt:   v.UpdatedAt.String(),
+				CreatedAt:   v.CreatedAt.Format(time.RFC3339),
+				UpdatedAt:   v.UpdatedAt.Format(time.RFC3339),
 			},
 		}
 		stream.Send(res)
@@ -208,8 +208,8 @@ func (server *Server) GetVideoByCriteria(req *VideoCriteriaRequest, stream Video
 				Title:       v.Title,
 				Description: v.Description,
 				Creator:     v.Creator,
-				CreatedAt:   v.CreatedAt.String(),
-				UpdatedAt:   v.UpdatedAt.String(),
+				CreatedAt:   v.CreatedAt.Format(time.RFC3339),
+				UpdatedAt:   v.UpdatedAt.Format(time.RFC3339),
 			},
 		}
 		stream.Send(res)
