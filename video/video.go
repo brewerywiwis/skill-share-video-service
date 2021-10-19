@@ -3,6 +3,7 @@ package video
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"io"
 	"log"
 	"skillshare/video/config"
@@ -196,7 +197,23 @@ func (server *Server) GetRandomVideo(req *NumberRequest, stream VideoService_Get
 }
 
 func (server *Server) GetVideoByCriteria(req *VideoCriteriaRequest, stream VideoService_GetVideoByCriteriaServer) error {
-	results, err := repository.GetVideoById(req.GetId())
+	filter := map[string]interface{}{}
+	if req.GetId() != "" {
+		idFromHex, err := primitive.ObjectIDFromHex(req.GetId())
+		if err != nil {
+			stream.Send(&VideoUploadedResponse{})
+			return errors.New("Cannot parse hex to object id")
+		}
+		filter["video_id"] = idFromHex
+	}
+	if req.GetUserId() != "" {
+		filter["creator"] = req.GetUserId()
+	}
+	if filter["video_id"] == nil && filter["creator"] == nil {
+		stream.Send(&VideoUploadedResponse{})
+		return errors.New("Cannot receive filter criteria")
+	}
+	results, err := repository.GetVideoByCriteria(filter)
 	if err != nil {
 		log.Println("Cannot get video data from DB")
 	}

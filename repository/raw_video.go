@@ -116,3 +116,17 @@ func GetVideoById(videoId string) (*[]model.RawVideoModel, error) {
 	}
 	return &results, nil
 }
+func GetVideoByCriteria(filter bson.M) (*[]model.RawVideoModel, error) {
+	databaseConfig := config.GetDatabaseConfig()
+	collection := database.GetDatabaseClient().Database(databaseConfig.DB_NAME).Collection("raw_videos")
+
+	cur, err := collection.Find(context.TODO(), filter)
+
+	var results []model.RawVideoModel
+	err = cur.All(context.TODO(), &results)
+	if err != nil {
+		log.Println("Mongo error", err)
+		return nil, err
+	}
+	return &results, nil
+}

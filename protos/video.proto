@@ -49,6 +49,8 @@ message NumberRequest {
 
 message VideoCriteriaRequest {
     string id = 1;
+    string userId = 2;
+    string username = 3;
 }
 service ChatService {
     rpc SayHello(Message) returns (Message) {}
